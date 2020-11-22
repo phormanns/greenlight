@@ -226,14 +226,14 @@ class SessionsController < ApplicationController
       return redirect_to root_path, flash: { success: I18n.t("registration.approval.signup") }
     end
 
-    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.name.length <= 3
-    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.name.length >= 2
+    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.social_uid.length <= 3
+    return redirect_to root_path, flash: { alert: I18n.t("errors.unauthorized.message") } unless user.social_uid.length >= 2
 
     send_invite_user_signup_email(user) if invite_registration && !@user_exists
 
     user.set_role :user if !@user_exists && user.role.nil?
 
-    if user.name.length == 2
+    if user.social_uid.length == 2
       user.set_role :admin
     end
 
